@@ -1,0 +1,2 @@
+TOKEN = '1958287947:AAG1Iw2LNbptRrOBG_4DP_UTtyJKDEXfyhU'  # bot token
+DELAY = 10
