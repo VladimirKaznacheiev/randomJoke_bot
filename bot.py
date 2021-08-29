@@ -34,7 +34,6 @@ async def send_welcome(message: types.Message):
                                             'хочешь отписатся от ежечасовой '
                                             'рассылки, напиши /unsubscribe🔕',
                            reply_markup=keyboardMarkup)
-    await bot.send_message(message.chat.id, message.chat.id)
 
     # await bot.send_message(message.chat.id, message.from_user.id)
     await bot.send_sticker(message.chat.id, sticker)
@@ -62,7 +61,7 @@ async def unsubscribe(message: types.Message):
 @dp.message_handler(content_types=['text'])
 async def get_joke(message: types.message):
     if message.text == '😂Рандомный анекдот':
-        await send_joke(message.chat_id)
+        await send_joke(message.chat.id)
     elif message.text == "ℹ️Моя статистика":
         await bot.send_message(message.chat.id,
                                "Разница(Смешно - Не смешно) ➡️" + str(db.get_difference(message.from_user.id)))
@@ -104,7 +103,7 @@ async def callback_inline(callback_query: types.CallbackQuery):
         db.update_difference(callback_query.from_user.id, int(db.get_difference(callback_query.from_user.id)) - 1)
     await bot.edit_message_text(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id,
                                 text=callback_query.message.text, reply_markup=None)
-    await bot.answer_callback_query(callback_query.id, show_alert=False, text="Это тестовое уведомление😊")
+    # await bot.answer_callback_query(callback_query.id, show_alert=False, text="Это тестовое уведомление😊")
 
 
 async def send_joke(chat_id):
