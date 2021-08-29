@@ -8,10 +8,9 @@ class Database:
         self.connection = sqlite3.connect(database)
         self.cursor = self.connection.cursor()
 
-    # def get_subscriptions(self, status = True):
-    #  """Получаем всех активных подписчиков бота"""
-    # with self.connection:
-    #    return self.cursor.execute("SELECT * FROM `subscriptions` WHERE `status` = ?", (status,)).fetchall()
+    def get_subs(self, status=True):
+        with self.connection:
+            return self.cursor.execute("SELECT * FROM `subscriptions` WHERE `sub_status` = ?", (status,)).fetchall()
 
     def user_exists(self, user_id):
         """Проверяем, есть ли уже юзер в базе"""
@@ -33,7 +32,7 @@ class Database:
     def get_difference(self, user_id):
         with self.connection:
             return self.cursor.execute("SELECT votes_difference FROM subscriptions WHERE user_id =?",
-                                    (user_id,)).fetchone()[0]
+                                       (user_id,)).fetchone()[0]
 
     def update_subscription(self, user_id, status):
         """Обновляем статус разницы пользователя"""
@@ -43,7 +42,8 @@ class Database:
 
     def get_subscription(self, user_id):
         with self.connection:
-            return self.cursor.execute("SELECT sub_status FROM subscriptions WHERE user_id =?", (user_id,)).fetchone()[0]
+            return self.cursor.execute("SELECT sub_status FROM subscriptions WHERE user_id =?", (user_id,)).fetchone()[
+                0]
 
     def close(self):
         """Закрываем соединение с БД"""

@@ -34,6 +34,8 @@ async def send_welcome(message: types.Message):
                                             'хочешь отписатся от ежечасовой '
                                             'рассылки, напиши /unsubscribe🔕',
                            reply_markup=keyboardMarkup)
+    await bot.send_message(message.chat.id, message.chat.id)
+
     # await bot.send_message(message.chat.id, message.from_user.id)
     await bot.send_sticker(message.chat.id, sticker)
 
@@ -60,7 +62,7 @@ async def unsubscribe(message: types.Message):
 @dp.message_handler(content_types=['text'])
 async def get_joke(message: types.message):
     if message.text == '😂Рандомный анекдот':
-        await send_joke(message)
+        await send_joke(message.chat_id)
     elif message.text == "ℹ️Моя статистика":
         await bot.send_message(message.chat.id,
                                "Разница(Смешно - Не смешно) ➡️" + str(db.get_difference(message.from_user.id)))
@@ -78,10 +80,12 @@ async def get_joke(message: types.message):
                                                 "статус подписки пользователя.")
 
 
-async def scheduled(wait_for, message: types.Message):
+async def scheduled(wait_for):
     while True:
-        if db.get_subscription(message.from_user.id):
-            await send_joke(message)
+        await asyncio.sleep(wait_for)
+        subscribers = db.get_subs()
+        for s in subscribers:
+            await send_joke(s[1])
 
 
 @dp.callback_query_handler(lambda c: c.data)
@@ -103,7 +107,7 @@ async def callback_inline(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id, show_alert=False, text="Это тестовое уведомление😊")
 
 
-async def send_joke(message: types.message):
+async def send_joke(chat_id):
     inline_markup = types.InlineKeyboardMarkup(
         inline_keyboard=[
             [
@@ -119,10 +123,10 @@ async def send_joke(message: types.message):
     r = requests.get("https://nekdo.ru/random")
     html = BS(r.content, 'html.parser')
     sticker = open('sticker1.webp', 'rb')
-    await bot.send_message(message.chat.id, html.find("div", {"class": "text"}).text, reply_markup=inline_markup)
+    await bot.send_message(chat_id, html.find("div", {"class": "text"}).text, reply_markup=inline_markup)
 
 
 if __name__ == '__main__':
-    # loop = asyncio.get_event_loop()
-    # loop.create_task(scheduled(10))
+    loop = asyncio.get_event_loop()
+    loop.create_task(scheduled(1800))
     executor.start_polling(dp, skip_updates=True)
